@@ -4,7 +4,7 @@
 include("config/config.php");
 
 // untuk api_key newsapi.org
-$api_key="d45f6f1cf4e0405784b52bae7bbb8767";
+$api_key="fb93ff7b01ac40d0a27425c488071ef3";
 
 // url api untuk ambil berita headline di US
 $url="https://newsapi.org/v2/top-headlines?country=us&apiKey=".$api_key;
@@ -17,7 +17,6 @@ $hasil=json_decode($data,true);
 
 // Tentukan URL untuk gambar placeholder (pastikan Anda punya 'images/placeholder.jpg')
 $placeholder_image = 'https://via.placeholder.com/400x200?text=No+Image'; // Menggunakan placeholder online untuk demo
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -26,26 +25,64 @@ $placeholder_image = 'https://via.placeholder.com/400x200?text=No+Image'; // Men
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <style>
         body {
-            background-color: #f8f9fa; /* Warna latar belakang ringan */
+            background-color: #f0f4f8; /* Warna abu-abu lembut, lebih soft dari asli */
         }
         .navbar-brand {
             font-weight: bold;
             letter-spacing: 1px;
+            color: #a8d5e2; /* Biru lembut untuk teks navbar */
         }
         .news-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             border: none;
             border-radius: 10px;
+            background-color: #e6f2f8; /* Biru sangat lembut untuk card */
         }
         .news-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(168, 213, 226, 0.2); /* Bayangan lebih soft dengan warna biru lembut */
         }
         .footer {
-            background-color: #343a40; /* Warna gelap untuk footer */
-            color: white;
+            background-color: #d8b4e2; /* Ungu pastel untuk footer, lebih soft dari asli */
+            color: #ffffff; /* Teks putih untuk kontras yang lembut */
             padding: 30px 0;
             margin-top: 50px;
+        }
+        /* Ganti warna navbar menjadi lebih soft */
+        .navbar {
+            background-color: #a8d5e2; /* Biru lembut sebagai ganti bg-dark */
+        }
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8); /* Teks navbar lebih soft */
+        }
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: #ffffff; /* Efek hover yang lembut */
+        }
+        /* Ganti warna jumbotron menjadi lebih soft */
+        .jumbotron {
+            background-color: #c7e9f1; /* Biru muda lembut */
+            color: #333333; /* Teks gelap tapi soft */
+        }
+        .jumbotron h1, .jumbotron p {
+            color: #555555; /* Teks lebih soft */
+        }
+        /* Aksen tombol dan elemen lainnya */
+        .btn-outline-primary {
+            color: #a8d5e2; /* Biru lembut */
+            border-color: #a8d5e2;
+        }
+        .btn-outline-primary:hover {
+            background-color: #a8d5e2; /* Efek hover yang lembut */
+            color: #ffffff;
+        }
+        h2 {
+            color: #7a9cc6; /* Biru sedang lembut untuk heading */
+        }
+        .card-title {
+            color: #4a6785; /* Biru gelap lembut */
+        }
+        .card-text {
+            color: #666666; /* Abu-abu lembut untuk deskripsi */
         }
     </style>
 </head>
@@ -63,7 +100,7 @@ $placeholder_image = 'https://via.placeholder.com/400x200?text=No+Image'; // Men
           <a class="nav-link" href="#home">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#news">News <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="#news">News <span class="sr-only"></span></a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#about">About</a>
@@ -122,7 +159,7 @@ if (isset($hasil['articles']) && is_array($hasil['articles'])) {
 <?php 
     } // end foreach
 } else {
-    echo '<div class="col-12"><div class="alert alert-danger text-center" role="alert">Gagal memuat berita. Mohon cek API Key atau file config.php.</div></div>';
+    echo '<div class="col-12"><div class="alert alert-warning text-center" role="alert">Gagal memuat berita. Mohon cek API Key atau file config.php.</div></div>';
 }
 ?>
 
