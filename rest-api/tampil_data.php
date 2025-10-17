@@ -1,37 +1,18 @@
 <?php
-require_once("config/koneksi.php");
- 
-//mencari data ID tertentu
-if(isset($_GET['id'])) {
-    $id=$_GET['id'];
-    $query="SELECT * FROM pengurus WHERE id='$id'";
-    $result=mysqli_query($con,$query);
-    $row=mysqli_fetch_assoc($result);
- 
-    $data=array(
-        'id'=>$row['id'],
-        'nama'=>$row['nama'],
-        'alamat'=>$row['alamat'],
-        'gender'=>$row['gender'],
-        'gaji'=>$row['gaji']
-    );
- 
-    $hasil[]=$data;
- 
-    echo json_encode($hasil);
- 
+header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json; charset=UTF-8');
+require_once('config/koneksi.php');
+
+$query = "SELECT * FROM pengurus ORDER BY id ASC";
+$result = mysqli_query($con, $query);
+
+$data = [];
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    echo json_encode(['response'=>200, 'data'=>$data]);
 } else {
- 
-    //menampilkan semua data
-    $query="SELECT * FROM pengurus";
-    $result=mysqli_query($con,$query);
-    $row=mysqli_fetch_assoc($result);
- 
-    do {
-        $hasil[]=$row;
-    } while($row=mysqli_fetch_assoc($result));
- 
-    echo json_encode($hasil);   
+    echo json_encode(['response'=>500, 'pesan'=>mysqli_error($con)]);
 }
- 
 ?>

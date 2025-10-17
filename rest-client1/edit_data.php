@@ -1,96 +1,64 @@
 <?php
-// Pastikan header JSON tidak dikirim karena output utama adalah HTML
-header('Content-Type: text/html');
+require_once('config.php');
 
-// Memuat file konfigurasi dan fungsi http_request_get()
-require_once("config.php"); 
-
-// Ambil parameter ID dar URL dengan pengecekan aman (Menghindari Warning Undefined array key "id")
-$id = $_GET['id'] ?? null; 
-
-// Jika ID kosong atau tidak ada
-if (empty($id)) {
-    echo "<p style='color:red;'>ERROR: ID pengurus harus disertakan di URL, contoh: edit_data.php?id=1</p>";
+if (!isset($_GET['id'])) {
+    echo 'ID tidak ditemukan';
     exit;
 }
-
-// URL untuk memanggil API RESTful Anda
-$url = "http://localhost/PPL-KHOTIM/rest-api/tampil_data.php?id=" . urlencode($id);
-
-// Mengambil data JSON (Memanggil fungsi dari config.php)
-$data_json = http_request_get($url);
-$hasil_array = json_decode($data_json, true);
-
-// -----------------------------------------------------------
-// Pengecekan Data dan Error Handling
-// -----------------------------------------------------------
-
-// 1. Cek apakah ada error saat decoding JSON
-if (json_last_error() !== JSON_ERROR_NONE || !is_array($hasil_array)) {
-    echo "<p style='color:red;'>ERROR: Data yang diterima dari API tidak valid. Output mentah: " . htmlspecialchars($data_json) . "</p>";
+$id = intval($_GET['id']);
+$url = API_BASE . '/tampil_detail.php?id=' . $id;
+$res = @file_get_contents($url);
+$data = json_decode($res, true);
+if (!isset($data['data'])) {
+    echo 'Data tidak ditemukan';
     exit;
 }
+$row = $data['data'];
 
-// 2. Ambil array data pengurus dari key 'pengurus'
-$pengurus = $hasil_array['pengurus'] ?? null; 
-
-// 3. Cek jika data pengurus adalah NULL (artinya ID tidak ditemukan di database atau API error)
-if ($pengurus === null || !is_array($pengurus)) {
-    // Ambil pesan error dari API jika ada
-    $pesan_error = $hasil_array['message'] ?? "Data pengurus dengan ID " . htmlspecialchars($id) . " tidak ditemukan.";
-    echo "<p style='color:red;'>ERROR: " . htmlspecialchars($pesan_error) . "</p>";
-    exit;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $post = [
+        'id' => $id,
+        'nama' => $_POST['nama'],
+        'alamat' => $_POST['alamat'],
+        'gender' => $_POST['gender'],
+        'gaji' => $_POST['gaji']
+    ];
+    $ch = curl_init(API_BASE . '/ubah_data.php');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    $resp = curl_exec($ch);
+    if (curl_errno($ch)) {
+        $msg = 'Curl error: '.curl_error($ch);
+    } else {
+        $jr = json_decode($resp, true);
+        if (isset($jr['response']) && $jr['response']==200) {
+            header('Location: tampil_data.php');
+            exit;
+        } else {
+            $msg = $jr['pesan'] ?? 'Gagal update';
+        }
+    }
+    curl_close($ch);
 }
-
-// Jika sampai di sini, variabel $pengurus pasti berisi data
 ?>
- 
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Ubah Data Pengurus</title>
-</head>
+<html lang="id">
+<head><meta charset="utf-8"><title>Edit Data</title></head>
 <body>
-    <h1>Ubah Data Pengurus</h1>
- 
-    <form method="POST" action="ubah_data.php">
- 
-    <table>
-        <tr>
-            <td>ID</td>
-            <td><input type="text" name="id" value="<?php echo htmlspecialchars($pengurus['id']); ?>" readonly></td>
-        </tr>
-        <tr>
-            <td>NAMA</td>
-            <td><input type="text" name="nama" value="<?php echo htmlspecialchars($pengurus['nama']); ?>"></td>
-        </tr>
-        <tr>
-            <td>ALAMAT</td>
-            <td><textarea name="alamat"><?php echo htmlspecialchars($pengurus['alamat']); ?></textarea></td>
-        </tr>
-        <tr>
-            <td>GENDER</td>
-            <td>
-            <select name="gender">
-                <option value="L" <?php echo ($pengurus['gender'] == 'L') ? 'selected' : ''; ?>>Laki-laki</option>
-                <option value="P" <?php echo ($pengurus['gender'] == 'P') ? 'selected' : ''; ?>>Perempuan</option>
-            </select>
-            </td>
-        </tr>
-        <tr>
-            <td>GAJI</td>
-            <td><input type="number" name="gaji" value="<?php echo htmlspecialchars($pengurus['gaji']); ?>"></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>
-                <button type="submit" name="ubah">UBAH</button>
-                <button type="reset">BATAL</button>
-            </td>
-        </tr>
-    </table>
-    
-    </form>
- 
+<h2>Edit Pengurus</h2>
+<?php if(!empty($msg)) echo '<p style="color:red">'.$msg.'</p>'; ?>
+<form method="POST" action="">
+<label>Nama:<br><input type="text" name="nama" required value="<?= htmlspecialchars($row['nama']) ?>"></label><br>
+<label>Alamat:<br><textarea name="alamat"><?= htmlspecialchars($row['alamat']) ?></textarea></label><br>
+<label>Gender:<br>
+<select name="gender" required>
+<option value="L" <?= ($row['gender']=='L')?'selected':'' ?>>L</option>
+<option value="P" <?= ($row['gender']=='P')?'selected':'' ?>>P</option>
+</select></label><br>
+<label>Gaji:<br><input type="number" name="gaji" required value="<?= htmlspecialchars($row['gaji']) ?>"></label><br>
+<button type="submit">Simpan Perubahan</button>
+</form>
+<p><a href="tampil_data.php">Kembali</a></p>
 </body>
 </html>

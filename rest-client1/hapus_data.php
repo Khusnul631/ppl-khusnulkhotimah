@@ -1,20 +1,14 @@
 <?php
-    //memasukan file config
-    include("config.php");
- 
-    //ambil parameter ID dar URL
-    $id=$_GET['id'];
- 
-    //url untuk hapus data
-    $url="http://localhost/PPL-KHOTIM/rest-api/hapus_data.php?id=".$id;
- 
-    //menyimpan hasil dalam variabel
-    $data=http_request_get($url);
- 
-    //konversi data json ke array
-    $hasil=json_decode($data,true);
- 
-    //memunculkan pesan 
-    var_dump($hasil);
- 
+require_once('config.php');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = intval($_POST['id']);
+    $ch = curl_init(API_BASE . '/hapus_data.php');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, ['id' => $id]);
+    $res = curl_exec($ch);
+    curl_close($ch);
+}
+header('Location: tampil_data.php');
+exit;
 ?>
