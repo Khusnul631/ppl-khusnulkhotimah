@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=UTF-8');
 require_once('config/koneksi.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['response'=>405, 'pesan'=>'Method not allowed']);
+    echo json_hencode(['response'=>405, 'pesan'=>'Method not allowed']);
     exit;
 }
 
